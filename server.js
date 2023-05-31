@@ -15,11 +15,13 @@ io.on('connection', (socket) => {
   socket.username = 'anonymus';
 
   socket.on('createRoom', (roomName) =>{
+    console.log("Room creada: " + roomName)
     socket.join(roomName);
   })
 
   socket.on('message', (message, roomName) => {
     console.log('Mensaje recibido en el server: ', message);
+    console.log("room: " + roomName)
     io.to(roomName).emit('message', {'user': socket.username, 'message': message});
   });
 

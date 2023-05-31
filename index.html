@@ -24,22 +24,40 @@
   <h1>XAT</h1>
   
   <div id="app">
+    <!-- Crear Usuario-->
     <div v-if="state == 0">
-      <h3>Elige una sala</h3>
-      <form @submit.prevent="setUsername">
-        <input type="text" placeholder="Nombre de la sala..." v-model="username" />
-        <input type="submit" value="Create" />
-      </form>
-      <button @click="continueWithoutUsername">Entra como invitado</button>
-    </div>
-    <div v-if="state == 1">
       <h3>Escribe tu nombre de usuario</h3>
       <form @submit.prevent="setUsername">
         <input type="text" placeholder="Username..." v-model="username" />
         <input type="submit" value="Join" />
       </form>
+      <br>
       <button @click="continueWithoutUsername">Entra como invitado</button>
     </div>
+    <!-- Crear Salas-->
+    <div v-if="state == 1">
+      <h3>Salas</h3>
+      <ul id="roombox">
+        <div v-if="roomListEmpty == true">
+          <li v-for="room in rooms" :key="room">
+            <input
+              type="radio"
+              :id="room"
+              :value="room"
+              v-model="selectedRoom"
+            >
+            <label :for="room">{{ room }}</label>
+          </li>
+          <button @click="enterRoom">Entrar a la sala</button>
+        </div>
+        <br><br>
+      <form @submit.prevent="createRoom">
+        <input type="text" placeholder="Sala..." v-model="roomName"/>
+        <input type="submit" value="Create">
+      </form>
+      </ul>
+    </div>
+    <!-- Mensajes-->
     <div v-if="state == 2">
       <ul id="chatbox">
         <li v-for="message in messages">
@@ -61,7 +79,10 @@
         messages: [],
         username: '',
         roomName: '',
-        state: 0
+        selectedRoom: '',
+        rooms: [],
+        state: 0,
+        roomListEmpty: true
       },
       methods:{
         sendMessage: function(){
@@ -79,19 +100,37 @@
         },
         createRoom: function(){
           socket.emit('createRoom', this.roomName);
+          this.state = 2;
+        },
+        enterRoom() {
+          console.log('Ingresando a la sala:', this.selectedRoom);
+          console.log("selected: " + this.selectedRoom)
+          if(this.selectedRoom != ''){
+            this.state=2
+          }
+          
         }
       },
       created: function(){
         socket = io();
       },
-      mounted: function(){
-        socket.on('message', function(message){
-          app.messages.push(message);
-          app.$nextTick(function (){
-            var messageBox = document.getElementById('chatbox');
-            messageBox.scrollTop = messageBox.scrollHeight;
+      mounted:{
+         function(){
+          socket.on('message', function(message){
+            app.messages.push(message);
+            app.$nextTick(function (){
+              var messageBox = document.getElementById('chatbox');
+              messageBox.scrollTop = messageBox.scrollHeight;
+            })
+          }) 
+        },
+        function(){
+          socket.on('createRoom', function(roomName){
+            console.log("pusheando room")
+            app.rooms.push(roomName)
+            console.log("rooms: " + rooms)
           })
-        })
+        }
       }
     })
   </script>
