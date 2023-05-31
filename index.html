@@ -85,52 +85,54 @@
         roomListEmpty: true
       },
       methods:{
-        sendMessage: function(){
-          socket.emit('message', this.message, this.roomName);
-          this.message = '';
-        },
         setUsername: function(){
-          socket.emit('join', this.username);
+          console.log("user: " + this.username)
+          socket.emit('user', this.username);
           this.username = '';
           this.state = 1;
         },
         continueWithoutUsername: function(){
-          socket.emit('join', null);
+          console.log("anonymus")
+          socket.emit('user', null);
           this.state = 1;
         },
         createRoom: function(){
+          console.log("Creando sala: " + this.roomName)
+          this.rooms.push(this.roomName);
+          this.messages = [];
           socket.emit('createRoom', this.roomName);
           this.state = 2;
         },
-        enterRoom() {
+        enterRoom: function() {
           console.log('Ingresando a la sala:', this.selectedRoom);
-          console.log("selected: " + this.selectedRoom)
+          this.messages = [];
+          socket.emit('joinRoom', this.selectedRoom);
           if(this.selectedRoom != ''){
             this.state=2
           }
           
+        }, sendMessage: function(){
+          console.log("enviando mensaje: "+this.message)
+          socket.emit('message', this.message, this.roomName);
+          this.message = '';
         }
       },
       created: function(){
         socket = io();
       },
-      mounted:{
-         function(){
-          socket.on('message', function(message){
-            app.messages.push(message);
-            app.$nextTick(function (){
-              var messageBox = document.getElementById('chatbox');
-              messageBox.scrollTop = messageBox.scrollHeight;
-            })
-          }) 
-        },
-        function(){
-          socket.on('createRoom', function(roomName){
-            console.log("pusheando room")
-            app.rooms.push(roomName)
-            console.log("rooms: " + rooms)
+      mounted(){
+        console.log("mounted")
+        this.socket.on('message', function(message){
+          console.log("mensaje: " + message);
+          app.messages.push(message);
+          app.$nextTick(function (){
+            var messageBox = document.getElementById('chatbox');
+            messageBox.scrollTop = messageBox.scrollHeight;
           })
-        }
+        }) 
+        this.socket.on('rooms', function(array){
+          this.rooms = array
+        }) 
       }
     })
   </script>
