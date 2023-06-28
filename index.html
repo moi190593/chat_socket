@@ -1,141 +1,118 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Chat de Prueba</title>
   <link rel="stylesheet" href="style/style.css">
   <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
-
-  <script src="https://unpkg.com/babel-polyfill/dist/polyfill.min.js"></script>
-  <script src="https://unpkg.com/vuetify@2.6.10/dist/vuetify.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/js-confetti@0.9.0/dist/js-confetti.browser.js"></script>
-  <link href="https://fonts.cdnfonts.com/css/bebas-neue" rel="stylesheet">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/gsap.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.0/ScrollTrigger.js"></script>
-  <script src="https://unpkg.com/split-type"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
-  <script src="https://unpkg.com/vue-chartjs@2.8.7/dist/vue-chartjs.full.min.js"></script>
-
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
-<body>
-  <h1>XAT</h1>
-  
+
+<body id="mainBody">
+
+  <h1 id="mainTitle">The Char Chat </h1>
+
+  <div #myRooms></div>
   <div id="app">
-    <!-- Crear Usuario-->
-    <div v-if="state == 0">
-      <h3>Escribe tu nombre de usuario</h3>
-      <form @submit.prevent="setUsername">
-        <input type="text" placeholder="Username..." v-model="username" />
-        <input type="submit" value="Join" />
+    <!--Login-->
+    <div v-if="state == 0" id="mainScreen"> <!--mainscreen es la pantalla de login.-->
+      <h2>Bienvenido!</h2>
+      <form @submit.prevent="groupLogin">
+        <input type="text" placeholder="Nombre de Usuario" v-model="username" /><br><br>
+        <input type="password" placeholder="Contraseña" v-model="password"><br><br>
+        <input type="submit" value="Entrar" />
       </form>
-      <br>
-      <button @click="continueWithoutUsername">Entra como invitado</button>
+      <a href="#" @click="goToRegister">¿Aun no tienes cuenta?</a>
+      <br><br><br>
     </div>
+
+    <!-- Registrarse -->
+    <div v-if="state == 3" id="registration">
+      <h2>Portal de Registro</h2>
+      <form @submit.prevent="groupRegister">
+        <input type="text" placeholder="Nombre de Usuario" v-model="usernameR" /><br><br>
+        <input type="password" placeholder="Contraseña" v-model="passwordR"><br><br>
+        <a href="#" @click="backToLogin">ya tienes cuenta?</a><br><br>
+
+        <input type="submit" value="Registrarse" />
+      </form>
+
+    </div>
+
     <!-- Crear Salas-->
-    <div v-if="state == 1">
-      <h3>Salas</h3>
+    <div v-if="state == 1" id="roomScreen">
       <ul id="roombox">
-        <div v-if="roomListEmpty == true">
-          <li v-for="room in rooms" :key="room">
-            <input
-              type="radio"
-              :id="room"
-              :value="room"
-              v-model="selectedRoom"
-            >
-            <label :for="room">{{ room }}</label>
+        <div v-if="roomListEmpty" id="secondScreenRoomList">
+          <h2>Salas Disponibles</h2>
+          <li v-for="room in rooms" :key="room.nombre">
+            <input type="radio" :id="room.nombre" :value="room.nombre" v-model="selectedRoom">
+            <label :for="room">{{ room.nombre }}</label>
           </li>
-          <button @click="enterRoom">Entrar a la sala</button>
+          <br>
+          <button @click="groupJoin">Entrar a la Sala</button>
+          <hr>
         </div>
         <br><br>
-      <form @submit.prevent="createRoom">
-        <input type="text" placeholder="Sala..." v-model="roomName"/>
-        <input type="submit" value="Create">
-      </form>
+
       </ul>
+
+      <form @submit.prevent="groupCreate">
+        <h2>Crear Nueva Sala</h2>
+        <input type="text" placeholder="Introduce Nombre De Sala" v-model="roomName" />
+
+        <input type="submit" value="Crear Sala">
+      </form>
     </div>
+
     <!-- Mensajes-->
     <div v-if="state == 2">
-      <ul id="chatbox">
-        <li v-for="message in messages">
-          <b>{{ message.user }}</b>: {{ message.message}}
-        </li>
-      <form @submit.prevent="sendMessage">
-        <input type="text" placeholder="Message..." v-model="message"/>
-        <input type="submit" value="Send">
-      </form>
-      </ul>
+
+
+      <!--=================================================-->
+      <div id="chatContainer">
+        <div id="myRooms">
+          <h3> Rooms</h3>
+          <li v-for="salas in salasFromUser">
+            <a>{{ salas }}</a>
+          </li>
+        </div>
+        <div id="chatScreen">
+          <h2 class="roomTitle" v-if="selectedRoom!= ''">Sala: {{selectedRoom}}</h2>
+          <h2 class="roomTitle" v-if="roomName!= ''">Sala: {{roomName}}</h2>
+          <ul id="chatbox">
+            <li v-for="message in messages">
+              <div id="msg_message" v-if="message.nombre==username" class="sender">
+                <b><a @click="asignarAdmin(message.user.id)">{{ message.nombre }}</a></b><br>
+                <button id="btn_del" @click="deleteMessage(message.id)">{{ message.mensaje}}<br></button>
+              </div><br>
+              <div id="msg_message" v-if="message.nombre!=username" class="received">
+                <b><a>{{ message.nombre }}</a></b><br>
+                <button id="btn_del" @click="deleteMessage(message.id)">{{ message.mensaje}}<br></button>
+              </div><br>
+            </li>
+          </ul>
+          <input v-on:keyup.enter="handleEnterKey" type="text" placeholder="Mensaje..." v-model="message" />
+          <button @click='sendMessage'>Enviar</button>
+          <div class="btn_container">
+            <button @click="groupBackToMenu" class="backToMenu">Salas</button>
+            <button @click="groupAbandonar" class="leaveTheRoom">Abandonar Sala</button>
+          </div>
+        </div>
+        <div id="activeUsersOfRoom">
+          <h3>Active Users Of The Room</h3>
+          <li v-for="users in activeUsers">
+            <a @click="asignarAdmin(users)"> {{ users }}</a>
+          </li>
+        </div>
+      </div>
     </div>
   </div>
-  <script>
-    var socket = null;
-    var app = new Vue({
-      el: '#app',
-      data:{
-        message:'',
-        messages: [],
-        username: '',
-        roomName: '',
-        selectedRoom: '',
-        rooms: [],
-        state: 0,
-        roomListEmpty: true
-      },
-      methods:{
-        setUsername: function(){
-          console.log("user: " + this.username)
-          socket.emit('user', this.username);
-          this.username = '';
-          this.state = 1;
-        },
-        continueWithoutUsername: function(){
-          console.log("anonymus")
-          socket.emit('user', null);
-          this.state = 1;
-        },
-        createRoom: function(){
-          console.log("Creando sala: " + this.roomName)
-          this.rooms.push(this.roomName);
-          this.messages = [];
-          socket.emit('createRoom', this.roomName);
-          this.state = 2;
-        },
-        enterRoom: function() {
-          console.log('Ingresando a la sala:', this.selectedRoom);
-          this.messages = [];
-          socket.emit('joinRoom', this.selectedRoom);
-          if(this.selectedRoom != ''){
-            this.state=2
-          }
-          
-        }, sendMessage: function(){
-          console.log("enviando mensaje: "+this.message)
-          socket.emit('message', this.message, this.roomName);
-          this.message = '';
-        }
-      },
-      created: function(){
-        socket = io();
-      },
-      mounted(){
-        console.log("mounted")
-        this.socket.on('message', function(message){
-          console.log("mensaje: " + message);
-          app.messages.push(message);
-          app.$nextTick(function (){
-            var messageBox = document.getElementById('chatbox');
-            messageBox.scrollTop = messageBox.scrollHeight;
-          })
-        }) 
-        this.socket.on('rooms', function(array){
-          this.rooms = array
-        }) 
-      }
-    })
-  </script>
-  
+
+
+  <script src="/scripts/client.js"></script>
 </body>
+
 </html>

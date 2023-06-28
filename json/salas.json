@@ -1,0 +1,71 @@
+{
+  "salas": [
+    {
+      "nombre": "Inetum",
+      "admins": [
+        "Moises",
+        "Owais"
+      ],
+      "usuariosActivos": [],
+      "mensajes": [
+        {
+          "id": 1,
+          "nombre": "Moises",
+          "mensaje": "dfgfdgdfgdf"
+        },
+        {
+          "id": 2,
+          "nombre": "Fran",
+          "mensaje": "kñkññlik"
+        }
+      ]
+    },
+    {
+      "nombre": "CHAR",
+      "admins": [
+        "Moises"
+      ],
+      "usuariosActivos": [
+        "1"
+      ],
+      "mensajes": [
+        {
+          "id": 1,
+          "nombre": "1",
+          "mensaje": "cdscvdsvdsfsdfds"
+        }
+      ]
+    },
+    {
+      "nombre": "Sprint Review",
+      "admins": [
+        "Jay"
+      ],
+      "usuariosActivos": [
+        "1",
+        "Moises",
+        "Owais"
+      ],
+      "mensajes": []
+    },
+    {
+      "nombre": "Apps",
+      "admins": [
+        "Owais"
+      ],
+      "usuariosActivos": [],
+      "mensajes": []
+    },
+    {
+      "nombre": "TRADMIA",
+      "admins": [
+        "Moises"
+      ],
+      "usuariosActivos": [
+        "Moises",
+        "Owais"
+      ],
+      "mensajes": []
+    }
+  ]
+}

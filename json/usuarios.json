@@ -1,0 +1,47 @@
+{
+  "usuarios": [
+    {
+      "id": 1,
+      "nombre": "Owais",
+      "password": "1234",
+      "salas": [
+        "Sprint Review",
+        "TRADMIA"
+      ]
+    },
+    {
+      "id": 2,
+      "nombre": "Fran",
+      "password": "1234",
+      "salas": []
+    },
+    {
+      "id": 3,
+      "nombre": "1",
+      "password": "1",
+      "salas": [
+        "CHAR",
+        "Inetum",
+        "Sprint Review"
+      ]
+    },
+    {
+      "id": 3,
+      "nombre": "Moises",
+      "password": "1234",
+      "salas": [
+        "Sprint Review"
+      ]
+    },
+    {
+      "id": 4,
+      "nombre": "Jay",
+      "password": "1234",
+      "salas": [
+        "CHAR",
+        "Sprint Review",
+        "Inetum"
+      ]
+    }
+  ]
+}
